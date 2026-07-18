@@ -1,49 +1,57 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
 
-string s1, s2;
-int dp[3100][3100];
+#define int long long
+string s,t;
 
-int rec(int i, int j){
-    // pruning
-    // base case
-    if(i==s1.size() || j==s2.size()) return 0;
+int dp[3010][3010], ch[3010][3010];
 
+int solve(int i, int j){
+    if(i==s.size() || j==t.size()){
+        return 0;
+    }
+    
     if(dp[i][j]!=-1) return dp[i][j];
-
-    // transaction
-    int ans = -1e9;
-    if(s1[i]==s2[j]) ans = max(ans, rec(i+1, j+1) + 1);
-    ans = max(ans, rec(i+1, j));
-    ans = max(ans, rec(i, j+1));
-
+    
+    int ans = 0;
+    if(s[i]==t[j]){
+        if(ans < 1ll + solve(i+1, j+1)){
+            ans = 1ll + solve(i+1, j+1);
+            ch[i][j] = 1;
+        }
+    }
+    if(ans < solve(i+1, j)){
+        ans = solve(i+1, j);
+        ch[i][j] = 2;
+    }
+    if(ans < solve(i, j+1)){
+        ans = solve(i, j+1);
+        ch[i][j] = 3;
+    }
+    
     return dp[i][j] = ans;
-
 }
 
-void generate(int i, int j){
-    if(i==s1.size() || j==s2.size()) return;
-    
-    int b = rec(i+1, j);
-    int c = rec(i, j+1);
-    
-    if(s1[i]==s2[j]){
-        cout<<s1[i];
-        generate(i+1, j+1);
+string printLCS(int i, int j){
+    if(i==s.size() || j==t.size()){
+        return "";
     }
-    else if(b > c){
-        generate(i+1, j);
+    
+    if(ch[i][j]==1){
+        return s[i] + printLCS(i+1, j+1);
     }
-    else{
-        generate(i, j+1);
+    if(ch[i][j]==2){
+        return printLCS(i+1, j);
+    }
+    if(ch[i][j]==3){
+        return printLCS(i, j+1);
     }
 }
 
-int main() {
-    cin>>s1>>s2;
-    memset(dp, -1, sizeof(dp));
-    rec(0, 0);
-    generate(0, 0);
-    
-    return 0;
+signed main(){
+  cin>>s>>t;
+  memset(dp, -1, sizeof(dp));
+  solve(0,0);
+  cout<<printLCS(0, 0);
+  return 0;
 }
